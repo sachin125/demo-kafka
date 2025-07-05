@@ -1,0 +1,6 @@
+docker exec -it kafka kafka-topics --bootstrap-server localhost:9092 --list
+
+
+docker exec -it kafka kafka-run-class kafka.tools.GetOffsetShell --bootstrap-server localhost:9092 --topic user-create-topic --time -1
+
+docker exec -it kafka kafka-console-consumer --bootstrap-server localhost:9092 --topic user-create-topic --from-beginning --max-messages 1 --timeout-ms 5000

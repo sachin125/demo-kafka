@@ -1,0 +1,60 @@
+[
+  {
+    "type": "record",
+    "name": "AvroAddress",
+    "namespace": "com.example.avro",
+    "fields": [
+      { "name": "id", "type": ["null", "long"], "default": null },
+      { "name": "street", "type": "string" },
+      { "name": "city", "type": "string" },
+      { "name": "zip", "type": ["null", "string"], "default": null },
+      { "name": "userId", "type": ["null", "long"], "default": null }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "AvroUser",
+    "namespace": "com.example.avro",
+    "fields": [
+      { "name": "id", "type": ["null", "long"], "default": null },
+      { "name": "name", "type": "string" },
+      { "name": "email", "type": ["null", "string"], "default": null },
+      { "name": "age", "type": "int" },
+      {
+        "name": "avroAddresses",
+        "type": {
+          "type": "array",
+          "items": "com.example.avro.AvroAddress"
+        },
+        "default": []
+      }
+    ]
+  },
+  {
+    "namespace": "com.example.avro",
+    "type": "record",
+    "name": "AvroEventWrapper",
+    "fields": [
+      { "name": "eventId", "type": "string" },
+      { "name": "eventType", "type": "string" },
+      { "name": "entityType", "type": "string" },
+      { "name": "source", "type": "string" },
+      { "name": "topic", "type": ["null", "string"], "default": null },
+      { "name": "version", "type": "string" },
+      { "name": "traceId", "type": ["null", "string"], "default": null },
+      { "name": "producerRegion", "type": ["null", "string"], "default": null },
+      { "name": "retryCount", "type": ["null", "int"], "default": null },
+      { "name": "ttl", "type": ["null", "int"], "default": null },
+      { "name": "timestamp", "type": "string" },
+      {
+        "name": "data",
+        "type": [
+          "null",
+          "com.example.avro.AvroUser",
+          "com.example.avro.AvroAddress"
+        ],
+        "default": null
+      }
+    ]
+  }
+] 

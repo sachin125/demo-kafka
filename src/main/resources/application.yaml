@@ -1,0 +1,128 @@
+server:
+  port: 6060
+  servlet:
+    context-path: /demokafka
+spring:
+  application:
+    name: kafka-demo
+  datasource:
+    url: jdbc:mysql://localhost:3306/demokafka?noAccessToProcedureBodies=true&useSSL=false
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver  
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        cache:
+          use_query_cache: false
+          use_second_level_cache: false
+          enable_lazy_load_no_trans: true  
+  kafka:
+    bootstrap-servers: localhost:29092
+    properties:
+      schema.registry.url: http://localhost:8081
+      auto.create.topics.enable: true
+      metadata.max.age.ms: 30000
+    producer:
+      retries: 0
+      request.timeout.ms: 5000
+      delivery.timeout.ms: 10000
+      # Performance and reliability settings
+      acks: 1
+      linger.ms: 0
+      batch.size: 16384
+      buffer.memory: 33554432
+      compression.type: none
+      max.in.flight.requests.per.connection: 1
+      enable.idempotence: false
+    consumer:
+      group-id: app-name-group
+      auto-offset-reset: earliest
+      # Performance and reliability settings
+      session.timeout.ms: 10000
+      heartbeat.interval.ms: 1000
+      max.poll.records: 100
+      max.poll.interval.ms: 10000
+      fetch.min.bytes: 1
+      fetch.max.wait.ms: 100
+      enable.auto.commit: false
+      properties:
+        specific.avro.reader: true
+        spring.json.trusted.packages: com.example
+
+# Kafka concurrency settings
+kafka:
+  consumer:
+    concurrency: 3  # Number of consumer threads per listener
+  topics:
+#    producer:                             # Producer topics - this app can produce to these topics
+#      avro: auser-create-topic,address-create-topic
+#      json: user,address
+#      string: user,address
+    consumer:                             # Consumer topics - this app can consume from these topics
+      avro: user,address,education
+      json: user,address,education
+      string: user,address,education
+    dlt:                                  # Dead Letter Queue topics
+      - user-create-avro-event-dlt
+      - address-create-avro-event-dlt
+      - education-create-avro-event-dlt
+      - user-create-json-topic-dlt
+      - address-create-json-topic-dlt
+      - education-create-String-topic-dlt
+  error-handling:
+    retry:
+      max-attempts: 3
+      initial-delay-ms: 1000
+      multiplier: 2.0
+      max-delay-ms: 10000
+      non-retryable-exceptions:
+        - java.lang.IllegalArgumentException
+        - java.lang.NullPointerException
+        - java.lang.UnsupportedOperationException
+    dlt:
+      suffix: "-dlt"
+      enabled: true
+      include-headers: true
+      include-stack-trace: false
+      max-message-size: 1048576
+    monitoring:
+      enabled: true
+      metrics-prefix: "kafka.error"
+      log-retry-attempts: true
+      log-dlt-messages: true
+      alert-emails: []
+
+# Management and monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+
+logging:
+  level:
+    root: INFO
+    org:
+      springframework:
+        kafka: INFO
+        boot.context.config: DEBUG
+      apache:
+        kafka: OFF
+    com.example: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"
